@@ -14,7 +14,7 @@ npm run
 Enjoy!
 
 ## Copyright and License
-MIT License, see [LICENSE](https://github.com/snowPu/asteroids/master/LICENSE) for details.
+MIT License, see [LICENSE](https://github.com/snowPu/asteroids/blob/main/LICENSE) for details.
 
 
 ### Mentions
