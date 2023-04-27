@@ -1,0 +1,21 @@
+{
+  "name": "asteroids",
+  "version": "1.0.0",
+  "description": "A recreation of the classic game Asteroids using p5.js.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "run-p start-compile start-run",
+    "start-compile": "tsc --watch",
+    "start-run": "browser-sync start --server -w"
+  },
+  "homepage": "https://github.com/snowPu/asteroids",
+  "devDependencies": {
+    "@types/p5": "1.5.0",
+    "browser-sync": "^2.26.12",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "p5.play": "^3.7.18"
+  }
+}
