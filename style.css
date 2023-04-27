@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css?family=Coda+Caption:800');
+* {
+    padding: 0px;
+    margin: 0px;
+    font-family: 'Coda Caption', sans-serif;
+}
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+body {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.main {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+#gameForm {
+    display: flex;
+    justify-content: center;
+}
+.highscoreLabel {
+    position: absolute;
+    top: 8%;
+    transform: perspective(300px) scaleY(2) rotateX(-30deg);
+    color: #9d76ce;
+    width: max-content;
+    /* text-align: center; */
+    font-size: 3.2vw;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.07vw;
+    text-shadow: 1px 1px 1px #440f70,
+        1px 2px 1px #440f70,
+        1px 3px 1px #440f70,
+        1px 4px 1px #440f70,
+        1px 5px 1px #440f70,
+        1px 6px 1px #440f70,
+        1px 7px 1px #440f70,
+        1px 8px 1px #440f70,
+        1px 9px 1px #440f70,
+        1px 10px 1px #440f70,
+    1px 18px 6px rgba(162, 75, 233, 0.4),
+    1px 22px 10px rgba(201, 224, 94, 0.2),
+    1px 25px 35px rgba(233, 197, 38, 0.2),
+    1px 30px 60px rgba(226, 241, 5, 0.4);
+}
+.highScores {
+    display: table;
+    font-size: 0.8vw;
+    border-spacing: 0.4em;
+    position: absolute;
+    top: 25%;
+}
+.highScore {
+    display: table-cell;
+    padding: 0.6em;
+    background-color:rgb(84, 15, 139);
+    color: white;
+    font-weight: bold;
+}
+.name {
+    display: table-cell;
+    padding: 0.6em;
+    background-color: rgba(242, 199, 255, 0.8);
+    color: black;
+    width: 15em;
+    overflow-x: hidden;
+}
+.table-row {
+    display: table-row;
+}
+
+input[type=text] {
+    padding: 0.3em;
+}
+
+button {
+    padding: 0.8em;
+    color: white;
+    border-radius: 2px;
+    font-weight: 400;
+    cursor: pointer;
+    background: #7D58AA;
+    border-color: #ad67b6;
+    width: max-content;
+    text-transform: uppercase;
+    font-size: 0.8vw;
+    border-width: 0.2em;
+    border-radius: 0.6em;
+    box-shadow: none;
+}
+
+button:hover {
+    background: #ad67b6;
+    border-color: #7D58AA;
+}
+
+.difficultyElement {
+    position: absolute;
+    top: 83%;
+    padding: 5px;
+    text-align: center;
+    font-size: 0.7vw;
+}
+
+.startNewGameButton {
+    position: absolute;
+    top: 88%;
+}
+
+.playerName {
+    position: absolute;
+    top: 78%;
+    font-size: 0.7vw;
+    border-radius: 0.3em;
+    border: solid 0.3em #440f70;
+}
+
+.playerName:focus {
+    outline-color: #D5A5CC;
+    outline-style: double;
+    outline-width: 0.3em;
+}
+
+.game-stats {
+    position: absolute;
+    right: 5%;
+    color: white;
+    font-size: 1vw;
+}
+#score {
+    bottom: 10%;
+}
+#lives {
+    bottom: 20%;
+}
