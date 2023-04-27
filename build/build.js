@@ -744,7 +744,7 @@ function setHighScoreDisplay(difficulty, highScores) {
     var html = '';
     highScores[difficulty].forEach(function (highScore) {
         html = html.concat("<div class='table-row'>");
-        html = html.concat("<div class='name'>".concat(highScore.name, "</div><div class='highScore'>").concat(highScore.score, "</div>"));
+        html = html.concat("<div class='name'>" + highScore.name + "</div><div class='highScore'>" + highScore.score + "</div>");
         html = html.concat("</div>");
     });
     highScoreElement.innerHTML = html;
@@ -847,3 +847,4 @@ function draw() {
         setLivesDisplay(game.lives);
     }
 }
+//# sourceMappingURL=build.js.map

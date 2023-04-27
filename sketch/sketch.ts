@@ -113,8 +113,11 @@ function setHighScoreDisplay(difficulty: Difficulty, highScores: HighScoreList) 
 }
 
 function getLocalHighScores() {
-	const highScoreString = localStorage.getItem(HIGH_SCORES);
-	return JSON.parse(highScoreString) ?? [];
+	const highScoreString = localStorage.getItem(HIGH_SCORES)
+  if (highScoreString) return JSON.parse(highScoreString)
+  else return {
+    easy: [], medium: [], hard: []
+  }
 }
 
 function setLocalHighScores(highScores: HighScoreList) {
