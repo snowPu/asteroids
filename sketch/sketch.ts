@@ -1,4 +1,4 @@
-let backgroundImage: p5.Image
+let backgroundImage: p5.Image;
 let shipImage: p5.Image;
 let shipWithThrustImage: p5.Image;
 let asteroidImage: p5.Image;
@@ -10,9 +10,7 @@ let lifeCounterElement: p5.Element
 let scoreElement: p5.Element
 let highScoreElement: HTMLDivElement
 let playerElement: HTMLInputElement
-let highScores: HighScoreList = {
-  easy: [], medium: [], hard: []
-}
+let highScores: HighScore[] = []
 let game: Game;
 let startNewGameElement: HTMLButtonElement
 let difficultyElement: HTMLSelectElement
@@ -21,6 +19,8 @@ let laserSound: p5.SoundFile
 let ufoSound: HTMLAudioElement
 let gameMusic: HTMLAudioElement
 let explosionSound: p5.SoundFile
+let db: any;
+
 
 function preload() {
   backgroundImage = loadImage('assets/space-background.jpg')
@@ -44,7 +44,6 @@ function preload() {
 }
 
 function setup() {
-  highScores = getLocalHighScores()
   difficultyElement = document.getElementById('difficultyElement') as HTMLSelectElement
   startNewGameElement = document.getElementById('startNewGameButton') as HTMLButtonElement
   startNewGameElement.onclick = startNewGame
@@ -66,9 +65,17 @@ function setup() {
       explosionImages.push(spriteSheet.get(col * dcol, row * drow, dcol, drow))
     }
   }
+
   createCanvas(windowWidth, windowHeight)
   console.log(width, height)
   rectMode(CENTER).noFill().frameRate(30);
+
+  firebase.default.initializeApp(firebaseConfig); 
+  db = firebase.default.firestore();
+  console.log(firebase)
+  console.log(db)
+  getHighScores()
+  difficultyElement.onchange = getHighScores
 }
 
 
@@ -102,9 +109,9 @@ function setScoreDisplay(score: number) {
 function setLivesDisplay(lives: number) {
   lifeCounterElement.html("Lives: " + lives.toString())
 }
-function setHighScoreDisplay(difficulty: Difficulty, highScores: HighScoreList) {
+function setHighScoreDisplay(highScores: HighScore[]) {
 	let html = ''
-	highScores[difficulty].forEach(highScore => {
+	highScores.forEach(highScore => {
 		html = html.concat("<div class='table-row'>")
 		html = html.concat(`<div class='name'>${highScore.name}</div><div class='highScore'>${highScore.score}</div>`)
 		html = html.concat("</div>")
@@ -112,30 +119,23 @@ function setHighScoreDisplay(difficulty: Difficulty, highScores: HighScoreList) 
   	highScoreElement.innerHTML = html
 }
 
-function getLocalHighScores() {
-	const highScoreString = localStorage.getItem(HIGH_SCORES)
-  if (highScoreString) return JSON.parse(highScoreString)
-  else return {
-    easy: [], medium: [], hard: []
+function getHighScores() {
+  if (db != undefined) {
+    return db.collection(getDifficulty()).orderBy('score', 'desc').limit(10).get().then((snapshot: { docs: any[]; }) => {
+      highScores = snapshot.docs.map(doc => doc.data())
+    })
   }
+  else { highScores = [] }
 }
 
-function setLocalHighScores(highScores: HighScoreList) {
-	localStorage.setItem(HIGH_SCORES, JSON.stringify(highScores))
-}
-
-function isHighScore(difficulty: Difficulty, score: number) {
-	const lowestScore = highScores[difficulty][NO_OF_HIGH_SCORES - 1]?.score ?? 0;
-	return (score > lowestScore)
+function addHighScore(name: string, score: number) {
+  if (db != undefined) {
+    db.collection(getDifficulty()).add({
+      name: name,
+      score: score
+    })
   }
-
-function addHighScore(difficulty: Difficulty, name: string, score: number) {
-	if (isHighScore) {
-		highScores[difficulty].push({ name: name, score: score })
-		highScores[difficulty].sort((a, b) => b.score - a.score)
-		highScores[difficulty].splice(NO_OF_HIGH_SCORES)
-		setLocalHighScores(highScores)
-	}
+  getHighScores()
 }
 
 // p5 WILL AUTO RUN THIS FUNCTION IF THE BROWSER WINDOW SIZE CHANGES
@@ -177,12 +177,12 @@ function draw() {
     playerElement.hidden = false
     highScoreElement.hidden = false
     highscoreLabel.hidden = false
-    setHighScoreDisplay(getDifficulty(), highScores)
+    setHighScoreDisplay(highScores)
   }
   if (game) {
     if (game.lives == 0) {
       if (game.state == 'NEWLIFE' || game.state == 'PAUSED' || game.state == 'RUNNING') {
-        addHighScore(getDifficulty(), game.playerName, game.score)
+        addHighScore(game.playerName, game.score)
         game.endGame()
       }
     }
@@ -222,5 +222,6 @@ function draw() {
     setLivesDisplay(game.lives)
 
   }
+  
 
 }

@@ -1,20 +1,18 @@
-var FULL_RADIUS = 105;
-var HALF_RADIUS = 65;
-var types = ['Full', 'Half'];
-var Asteroid = (function () {
-    function Asteroid(img, velocity, position, type) {
-        if (position === void 0) { position = createVector(random(0, width), random(0, height)); }
-        if (type === void 0) { type = randomChoice(types); }
+const FULL_RADIUS = 105;
+const HALF_RADIUS = 65;
+let types = ['Full', 'Half'];
+class Asteroid {
+    constructor(img, velocity, position = createVector(random(0, width), random(0, height)), type = randomChoice(types)) {
         this.position = position;
         this.type = type;
         this.radius = this.type == 'Full' ? FULL_RADIUS : HALF_RADIUS;
         this.img = img;
         this.velocity = velocity;
     }
-    Asteroid.prototype._rotate_random = function () {
+    _rotate_random() {
         this.rotation += random(0, 0.2);
-    };
-    Asteroid.prototype.setPosition = function (position) {
+    }
+    setPosition(position) {
         this.position = position;
         if (this.position.x > width + this.radius) {
             this.position.x = -this.radius;
@@ -28,29 +26,28 @@ var Asteroid = (function () {
         if (this.position.y < -this.radius) {
             this.position.y = height + this.radius;
         }
-    };
-    Asteroid.prototype.move = function () {
+    }
+    move() {
         push();
         this._rotate_random();
         rotate(this.rotation);
         this.setPosition(this.position.add(this.velocity));
         pop();
-    };
-    Asteroid.prototype.draw = function () {
+    }
+    draw() {
         push();
         imageMode(CENTER);
         translate(this.position);
         rotate(this.rotation);
         image(this.img, 0, 0, this.radius, this.radius);
         pop();
-    };
-    return Asteroid;
-}());
+    }
+}
 function randomChoice(arr) {
     return arr[(Math.random() * arr.length) | 0];
 }
-var Explosion = (function () {
-    function Explosion(position, speed, size, images) {
+class Explosion {
+    constructor(position, speed, size, images) {
         this.position = position;
         this.speed = speed;
         this.size = size;
@@ -58,24 +55,23 @@ var Explosion = (function () {
         this._index = 0;
         this._frame = 0;
     }
-    Explosion.prototype.animate = function () {
+    animate() {
         this._frame += 1;
         this._index += this.speed;
-    };
-    Explosion.prototype.getFrame = function () {
+    }
+    getFrame() {
         return this._frame;
-    };
-    Explosion.prototype.draw = function () {
+    }
+    draw() {
         push();
         imageMode(CENTER);
         translate(this.position);
         image(this.images[floor(this._index) % this.images.length], 0, 0, this.size.x, this.size.y);
         pop();
-    };
-    return Explosion;
-}());
-var Game = (function () {
-    function Game(playerName, config) {
+    }
+}
+class Game {
+    constructor(playerName, config) {
         this.playerName = playerName;
         this.config = config;
         this.ship = new Ship(width / 2, height - SHIP_HEIGHT, shipImage.width / shipImage.height * SHIP_HEIGHT, SHIP_HEIGHT, shipImage, shipWithThrustImage);
@@ -88,93 +84,92 @@ var Game = (function () {
         this.state = 'START';
         this.nextUpgradeUFO = config.ufoConfig.ufoUpgradeScoreEvery;
     }
-    Game.prototype.moveElements = function () {
+    moveElements() {
         if (this.state == 'RUNNING') {
             this.ship.move();
-            this.asteroids.forEach(function (asteroid) { return asteroid.move(); });
-            this.ship.lasers.forEach(function (laser) { return laser.move(); });
+            this.asteroids.forEach(asteroid => asteroid.move());
+            this.ship.lasers.forEach(laser => laser.move());
         }
-        this.explosions.forEach(function (explosion) { return explosion.animate(); });
-        this.ufos.forEach(function (ufo) {
+        this.explosions.forEach(explosion => explosion.animate());
+        this.ufos.forEach(ufo => {
             ufo.move();
             ufo.decrementLife();
-            ufo.lasers.forEach(function (laser) { return laser.move(); });
+            ufo.lasers.forEach(laser => laser.move());
         });
-    };
-    Game.prototype.addRemoveElementsFromGame = function () {
+    }
+    addRemoveElementsFromGame() {
         this._removeOffScreenLasers();
         this._replenishAsteroids();
         this._removeExpiredUFOs();
         this._replenishUFOS();
-        var randomNumber = Math.random();
+        const randomNumber = Math.random();
         if (randomNumber < this.config.ufoConfig.shootingProbability)
-            this.ufos.forEach(function (ufo) { return ufo.shoot(); });
-    };
-    Game.prototype.drawElements = function () {
+            this.ufos.forEach(ufo => ufo.shoot());
+    }
+    drawElements() {
         if (this.state != 'END') {
             this.ship.draw();
-            this.asteroids.forEach(function (asteroid) { return asteroid.draw(); });
-            this.ship.lasers.forEach(function (laser) { return laser.draw(); });
+            this.asteroids.forEach(asteroid => asteroid.draw());
+            this.ship.lasers.forEach(laser => laser.draw());
         }
         this._removeOldExplosions();
-        this.explosions.forEach(function (explosion) { return explosion.draw(); });
-        this.ufos.forEach(function (ufo) {
+        this.explosions.forEach(explosion => explosion.draw());
+        this.ufos.forEach(ufo => {
             ufo.draw();
-            ufo.lasers.forEach(function (laser) { return laser.draw(); });
+            ufo.lasers.forEach(laser => laser.draw());
         });
-    };
-    Game.prototype.rotateShipLeft = function () {
+    }
+    rotateShipLeft() {
         this.ship.rotate_left();
-    };
-    Game.prototype.rotateShipRight = function () {
+    }
+    rotateShipRight() {
         this.ship.rotate_right();
-    };
-    Game.prototype.acclerateShipUpwards = function () {
+    }
+    acclerateShipUpwards() {
         this.ship.isAccelerating = true;
         this.ship.accelerate(D_ACCELERATION);
-    };
-    Game.prototype.acclerateShipDownwards = function () {
+    }
+    acclerateShipDownwards() {
         this.ship.isAccelerating = true;
         this.ship.accelerate(-D_ACCELERATION);
-    };
-    Game.prototype.decelerateShip = function () {
+    }
+    decelerateShip() {
         this.ship.decelerate();
-    };
-    Game.prototype.newLife = function () {
+    }
+    newLife() {
         this.ship.setPosition(createVector(width / 2, height - SHIP_HEIGHT));
         this.ship.setVelocity(createVector(0, 0));
         this.ship.setRotation(0);
         this.state = 'NEWLIFE';
         this.lives--;
-    };
-    Game.prototype.incrementScore = function (by) {
-        if (by === void 0) { by = 1; }
+    }
+    incrementScore(by = 1) {
         this.score += by;
-    };
-    Game.prototype.startGame = function () {
+    }
+    startGame() {
         this.state = 'RUNNING';
-    };
-    Game.prototype.resumeGame = function () {
+    }
+    resumeGame() {
         this.state = 'RUNNING';
-    };
-    Game.prototype.pauseGame = function () {
+    }
+    pauseGame() {
         this.state = 'PAUSED';
-    };
-    Game.prototype.endGame = function () {
+    }
+    endGame() {
         this.state = 'END';
         ufoSound.pause();
-    };
-    Game.prototype.checkCollisions = function () {
+    }
+    checkCollisions() {
         if (this.state == 'RUNNING') {
             this._checkAsteroidsShipCollisions();
             this._checkAsteroidsLaserCollision();
             this._checkUFOCollisions();
             this._checkShipLaserCollision();
         }
-    };
-    Game.prototype._checkUFOCollisions = function () {
-        var ufoIdx;
-        var laserIdx;
+    }
+    _checkUFOCollisions() {
+        let ufoIdx;
+        let laserIdx;
         for (ufoIdx = 0; ufoIdx < this.ufos.length; ufoIdx++) {
             if (this._collideShipUFO(ufoIdx)) {
                 break;
@@ -185,29 +180,29 @@ var Game = (function () {
                 }
             }
         }
-    };
-    Game.prototype._checkShipLaserCollision = function () {
-        var ufoIdx;
+    }
+    _checkShipLaserCollision() {
+        let ufoIdx;
         for (ufoIdx = 0; ufoIdx < this.ufos.length; ufoIdx++) {
-            var laserIdx = void 0;
+            let laserIdx;
             for (laserIdx = 0; laserIdx < this.ufos[ufoIdx].lasers.length; laserIdx++) {
                 if (this._collideShipUFOLaser(ufoIdx, laserIdx)) {
                     break;
                 }
             }
         }
-    };
-    Game.prototype._checkAsteroidsShipCollisions = function () {
-        var asteroidIdx;
+    }
+    _checkAsteroidsShipCollisions() {
+        let asteroidIdx;
         for (asteroidIdx = 0; asteroidIdx < this.asteroids.length; asteroidIdx++) {
             if (this._collideShipAsteroid(asteroidIdx)) {
                 break;
             }
         }
-    };
-    Game.prototype._checkAsteroidsLaserCollision = function () {
-        var laserIdx;
-        var asteroidIdx;
+    }
+    _checkAsteroidsLaserCollision() {
+        let laserIdx;
+        let asteroidIdx;
         for (asteroidIdx = 0; asteroidIdx < this.asteroids.length; asteroidIdx++) {
             for (laserIdx = 0; laserIdx < this.ship.lasers.length; laserIdx++) {
                 if (this._collideLaserAsteroid(laserIdx, asteroidIdx)) {
@@ -215,10 +210,10 @@ var Game = (function () {
                 }
             }
         }
-    };
-    Game.prototype._collideLaserUFO = function (laserIdx, ufoIdx) {
-        var laser = this.ship.lasers[laserIdx];
-        var ufo = this.ufos[ufoIdx];
+    }
+    _collideLaserUFO(laserIdx, ufoIdx) {
+        const laser = this.ship.lasers[laserIdx];
+        const ufo = this.ufos[ufoIdx];
         if (collideLaserUFO(laser, ufo)) {
             explosionSound.play();
             this.incrementScore(5);
@@ -233,10 +228,10 @@ var Game = (function () {
             return true;
         }
         return false;
-    };
-    Game.prototype._collideLaserAsteroid = function (laserIdx, asteroidIdx) {
-        var laser = this.ship.lasers[laserIdx];
-        var asteroid = this.asteroids[asteroidIdx];
+    }
+    _collideLaserAsteroid(laserIdx, asteroidIdx) {
+        const laser = this.ship.lasers[laserIdx];
+        const asteroid = this.asteroids[asteroidIdx];
         if (collideLaserAsteroid(laser, asteroid)) {
             explosionSound.play();
             this.incrementScore();
@@ -254,9 +249,9 @@ var Game = (function () {
             return true;
         }
         return false;
-    };
-    Game.prototype._collideShipUFOLaser = function (ufoIdx, laserIdx) {
-        var laser = this.ufos[ufoIdx].lasers[laserIdx];
+    }
+    _collideShipUFOLaser(ufoIdx, laserIdx) {
+        const laser = this.ufos[ufoIdx].lasers[laserIdx];
         if (collideLaserShip(laser, this.ship)) {
             explosionSound.play();
             this._addExplosion(this.ship.position.copy(), 3, this.ship.height);
@@ -265,9 +260,9 @@ var Game = (function () {
             return true;
         }
         return false;
-    };
-    Game.prototype._collideShipAsteroid = function (asteroidIdx) {
-        var asteroid = this.asteroids[asteroidIdx];
+    }
+    _collideShipAsteroid(asteroidIdx) {
+        const asteroid = this.asteroids[asteroidIdx];
         if (collideShipAsteroid(this.ship, asteroid)) {
             explosionSound.play();
             this._addExplosion(this.ship.position.copy(), 3, this.ship.height);
@@ -276,9 +271,9 @@ var Game = (function () {
             return true;
         }
         return false;
-    };
-    Game.prototype._collideShipUFO = function (ufoIdx) {
-        var ufo = this.ufos[ufoIdx];
+    }
+    _collideShipUFO(ufoIdx) {
+        const ufo = this.ufos[ufoIdx];
         if (collideShipUFO(this.ship, ufo)) {
             explosionSound.play();
             this._addExplosion(this.ship.position.copy(), 3, this.ship.height);
@@ -287,47 +282,47 @@ var Game = (function () {
             return true;
         }
         return false;
-    };
-    Game.prototype._removeAsteroid = function (asteroidIndex) {
+    }
+    _removeAsteroid(asteroidIndex) {
         this.asteroids.splice(asteroidIndex, 1);
-    };
-    Game.prototype._removeUFO = function (ufoIndex) {
+    }
+    _removeUFO(ufoIndex) {
         this.ufos.splice(ufoIndex, 1);
-    };
-    Game.prototype._replenishAsteroids = function () {
+    }
+    _replenishAsteroids() {
         if (this.asteroids.length < this.config.asteroidConfig.minimumCount) {
             this._addRandomAsteroids(this.config.asteroidConfig.asteroidReplenishCount);
         }
-    };
-    Game.prototype._addRandomAsteroids = function (count) {
-        for (var i = 0; i < count; i++) {
-            var position = void 0;
+    }
+    _addRandomAsteroids(count) {
+        for (let i = 0; i < count; i++) {
+            let position;
             while (!position || p5.Vector.dist(position, this.ship.position) < (this.ship.height + FULL_RADIUS + 10)) {
                 position = createVector(random(0, width), random(0, height));
             }
             console.log(this.config);
-            var velocity = createVector(random(-this.config.asteroidConfig.maxVelocity, this.config.asteroidConfig.maxVelocity), random(-this.config.asteroidConfig.maxVelocity, this.config.asteroidConfig.maxVelocity));
+            const velocity = createVector(random(-this.config.asteroidConfig.maxVelocity, this.config.asteroidConfig.maxVelocity), random(-this.config.asteroidConfig.maxVelocity, this.config.asteroidConfig.maxVelocity));
             this._addAsteroids([new Asteroid(asteroidImage, velocity, position = position)]);
         }
-    };
-    Game.prototype._removeExpiredUFOs = function () {
-        for (var i = 0; i < this.ufos.length; i++) {
-            var ufo = this.ufos[i];
+    }
+    _removeExpiredUFOs() {
+        for (let i = 0; i < this.ufos.length; i++) {
+            const ufo = this.ufos[i];
             if (ufo.lifeSeconds <= 0) {
                 this.ufos.splice(i, 1);
                 break;
             }
         }
-    };
-    Game.prototype._replenishUFOS = function () {
+    }
+    _replenishUFOS() {
         if (this.ufos.length < this.config.ufoConfig.maximumCount) {
-            var randomNumber = Math.random();
+            const randomNumber = Math.random();
             if (randomNumber < 0.005) {
-                var position = void 0;
+                let position;
                 while (!position || p5.Vector.dist(position, this.ship.position) < (this.ship.height + UFO_HEIGHT + 10)) {
                     position = createVector(random(0, width), random(0, height));
                 }
-                var ufoType = 'NORMAL';
+                let ufoType = 'NORMAL';
                 if (this.score >= this.nextUpgradeUFO) {
                     this.nextUpgradeUFO += this.config.ufoConfig.ufoUpgradeScoreEvery;
                     ufoType = 'UPGRADE';
@@ -336,31 +331,29 @@ var Game = (function () {
                 ufoSound.play();
             }
         }
-    };
-    Game.prototype._addAsteroids = function (asteroids) {
-        var _a;
-        (_a = this.asteroids).push.apply(_a, asteroids);
-    };
-    Game.prototype._removeLaser = function (laserIndex) {
+    }
+    _addAsteroids(asteroids) {
+        this.asteroids.push(...asteroids);
+    }
+    _removeLaser(laserIndex) {
         this.ship.lasers.splice(laserIndex, 1);
-    };
-    Game.prototype._removeUFOLaser = function (ufoIndex, laserIndex) {
+    }
+    _removeUFOLaser(ufoIndex, laserIndex) {
         this.ufos[ufoIndex].lasers.splice(laserIndex, 1);
-    };
-    Game.prototype._addExplosion = function (position, speed, radius) {
+    }
+    _addExplosion(position, speed, radius) {
         this.explosions.push(new Explosion(position, speed, createVector(radius, radius), explosionImages));
-    };
-    Game.prototype._removeOffScreenLasers = function () {
-        this.ship.lasers = this.ship.lasers.filter(function (laser) { return !laser.offscreen(); });
-        this.ufos.forEach(function (ufo) {
-            ufo.lasers = ufo.lasers.filter(function (laser) { return !laser.offscreen(); });
+    }
+    _removeOffScreenLasers() {
+        this.ship.lasers = this.ship.lasers.filter(laser => !laser.offscreen());
+        this.ufos.forEach(ufo => {
+            ufo.lasers = ufo.lasers.filter(laser => !laser.offscreen());
         });
-    };
-    Game.prototype._removeOldExplosions = function () {
-        this.explosions = this.explosions.filter(function (explosion) { return explosion.getFrame() <= explosionLength; });
-    };
-    return Game;
-}());
+    }
+    _removeOldExplosions() {
+        this.explosions = this.explosions.filter(explosion => explosion.getFrame() <= explosionLength);
+    }
+}
 function collideLaserUFO(laser, ufo) {
     return p5.Vector.dist(laser.position, ufo.position) <= (ufo.width + laser.radius);
 }
@@ -376,43 +369,40 @@ function collideShipAsteroid(ship, asteroid) {
 function collideShipUFO(ship, ufo) {
     return p5.Vector.dist(ship.position, ufo.position) <= (ship.width + ufo.width * 0.6);
 }
-var Laser = (function () {
-    function Laser(position, velocity, color) {
-        if (color === void 0) { color = {
-            r: random(100, 255),
-            g: random(100, 255),
-            b: random(100, 255),
-        }; }
+class Laser {
+    constructor(position, velocity, color = {
+        r: random(100, 255),
+        g: random(100, 255),
+        b: random(100, 255),
+    }) {
         this.position = position;
         this.radius = 5;
         this.velocity = velocity;
         this.color = color;
     }
-    Laser.prototype.setPosition = function (position) {
+    setPosition(position) {
         this.position = position;
-    };
-    Laser.prototype.offscreen = function () {
+    }
+    offscreen() {
         return (this.position.x > width || this.position.x < 0 || this.position.y > height || this.position.y < 0);
-    };
+    }
     ;
-    Laser.prototype.move = function () {
+    move() {
         push();
         this.setPosition(this.position.add(this.velocity));
         pop();
-    };
-    Laser.prototype.draw = function () {
+    }
+    draw() {
         push();
         imageMode(CENTER);
         translate(this.position);
         fill(this.color.r, this.color.g, this.color.b);
         circle(0, 0, this.radius * 2);
         pop();
-    };
-    return Laser;
-}());
-var Ship = (function () {
-    function Ship(x, y, width, height, img, thrustImg, velocity) {
-        if (velocity === void 0) { velocity = createVector(0, 0); }
+    }
+}
+class Ship {
+    constructor(x, y, width, height, img, thrustImg, velocity = createVector(0, 0)) {
         this.position = createVector(x, y);
         this.width = width;
         this.height = height;
@@ -424,36 +414,36 @@ var Ship = (function () {
         this.isAccelerating = false;
         this.lasers = [];
     }
-    Ship.prototype.rotate_left = function () {
+    rotate_left() {
         this.rotation -= 0.1;
-    };
-    Ship.prototype.rotate_right = function () {
+    }
+    rotate_right() {
         this.rotation += 0.1;
-    };
-    Ship.prototype.setRotation = function (rotation) {
+    }
+    setRotation(rotation) {
         this.rotation = rotation;
-    };
-    Ship.prototype.setVelocity = function (velocity) {
+    }
+    setVelocity(velocity) {
         this.velocity = velocity.limit(this.maxVelocity);
-    };
-    Ship.prototype.accelerate = function (d_velocity) {
-        var force = p5.Vector.fromAngle(this.rotation - PI / 2);
+    }
+    accelerate(d_velocity) {
+        let force = p5.Vector.fromAngle(this.rotation - PI / 2);
         force.mult(d_velocity);
         this.setVelocity(this.velocity.add(force));
-    };
-    Ship.prototype.decelerate = function () {
+    }
+    decelerate() {
         this.velocity = this.velocity.mult(0.99);
-    };
-    Ship.prototype.move = function () {
+    }
+    move() {
         push();
         this.setPosition(this.position.add(this.velocity));
         pop();
-    };
-    Ship.prototype.shoot = function () {
+    }
+    shoot() {
         laserSound.play();
         this.lasers.push(new Laser(p5.Vector.add(this.position.copy(), p5.Vector.fromAngle(this.rotation - PI / 2).mult(this.height / 2)), p5.Vector.fromAngle(this.rotation - PI / 2).mult(30)));
-    };
-    Ship.prototype.setPosition = function (position) {
+    }
+    setPosition(position) {
         this.position = position;
         if (this.position.x > width + this.height) {
             this.position.x = -this.height;
@@ -467,8 +457,8 @@ var Ship = (function () {
         if (this.position.y < -this.height) {
             this.position.y = height + this.height;
         }
-    };
-    Ship.prototype.draw = function () {
+    }
+    draw() {
         push();
         imageMode(CENTER);
         translate(this.position);
@@ -480,13 +470,10 @@ var Ship = (function () {
             image(this.img, 0, 0, this.width, this.height);
         }
         pop();
-    };
-    return Ship;
-}());
-var UFO = (function () {
-    function UFO(config, width, height, type, position, velocity) {
-        if (position === void 0) { position = createVector(random(0, width), random(0, height)); }
-        if (velocity === void 0) { velocity = createVector(random(-config.maxVelocity, config.maxVelocity), random(-config.maxVelocity, config.maxVelocity)); }
+    }
+}
+class UFO {
+    constructor(config, width, height, type, position = createVector(random(0, width), random(0, height)), velocity = createVector(random(-config.maxVelocity, config.maxVelocity), random(-config.maxVelocity, config.maxVelocity))) {
         this.config = config;
         this.position = position;
         this.width = width;
@@ -505,48 +492,48 @@ var UFO = (function () {
             this.lifeSeconds = config.ufoUpgradeLifetimeSeconds;
         }
     }
-    UFO.prototype.rotate_left = function () {
+    rotate_left() {
         this.rotation -= 0.05;
-    };
-    UFO.prototype.rotate_right = function () {
+    }
+    rotate_right() {
         this.rotation += 0.05;
-    };
-    UFO.prototype.setRotation = function (rotation) {
+    }
+    setRotation(rotation) {
         this.rotation = rotation;
-    };
-    UFO.prototype.setVelocity = function (velocity) {
+    }
+    setVelocity(velocity) {
         this.velocity = velocity.limit(this.maxVelocity);
-    };
-    UFO.prototype.accelerate = function (d_velocity) {
-        var force = p5.Vector.fromAngle(this.rotation - PI / 2);
+    }
+    accelerate(d_velocity) {
+        let force = p5.Vector.fromAngle(this.rotation - PI / 2);
         force.mult(d_velocity);
         this.setVelocity(this.velocity.add(force));
-    };
-    UFO.prototype.decelerate = function () {
+    }
+    decelerate() {
         this.velocity = this.velocity.mult(0.99);
-    };
-    UFO.prototype._rotate_random = function () {
+    }
+    _rotate_random() {
         this.rotation += random(0, 0.05);
-    };
-    UFO.prototype.move = function () {
+    }
+    move() {
         push();
         this._rotate_random();
         this.setPosition(this.position.add(this.velocity));
         pop();
-    };
-    UFO.prototype.decrementLife = function () {
+    }
+    decrementLife() {
         if (this.lifeSeconds !== undefined && frameCount % 30 == 0) {
             this.lifeSeconds -= 1;
         }
-    };
-    UFO.prototype.shoot = function () {
+    }
+    shoot() {
         this.lasers.push(new Laser(p5.Vector.add(this.position.copy(), p5.Vector.fromAngle(this.rotation - PI / 2).mult(this.height / 2)), p5.Vector.fromAngle(this.rotation - PI / 2).mult(10), {
             r: 200,
             g: 0,
             b: 0,
         }));
-    };
-    UFO.prototype.setPosition = function (position) {
+    }
+    setPosition(position) {
         this.position = position;
         if (this.position.x > width + this.height) {
             this.position.x = -this.height;
@@ -560,8 +547,8 @@ var UFO = (function () {
         if (this.position.y < -this.height) {
             this.position.y = height + this.height;
         }
-    };
-    UFO.prototype.draw = function () {
+    }
+    draw() {
         push();
         imageMode(CENTER);
         translate(this.position);
@@ -578,10 +565,9 @@ var UFO = (function () {
             text(Math.ceil(this.lifeSeconds), 0, 0);
         }
         pop();
-    };
-    return UFO;
-}());
-var easy = {
+    }
+}
+const easy = {
     asteroidConfig: {
         initialAsteroidCount: 15,
         minimumCount: 5,
@@ -597,7 +583,7 @@ var easy = {
         shootingProbability: 0.08,
     }
 };
-var medium = {
+const medium = {
     asteroidConfig: {
         initialAsteroidCount: 20,
         minimumCount: 8,
@@ -613,7 +599,7 @@ var medium = {
         shootingProbability: 0.1,
     }
 };
-var hard = {
+const hard = {
     asteroidConfig: {
         initialAsteroidCount: 25,
         minimumCount: 10,
@@ -629,43 +615,52 @@ var hard = {
         shootingProbability: 0.15,
     }
 };
-var spriteRows = 4;
-var spriteCols = 4;
-var spriteRow = 3;
-var D_ACCELERATION = 2;
-var explosionLength = 40;
-var SHIP_HEIGHT = 70;
-var UFO_HEIGHT = 80;
-var HIGH_SCORES = 'HIGH_SCORES';
-var NO_OF_HIGH_SCORES = 10;
-var CONFIGS = {
+const spriteRows = 4;
+const spriteCols = 4;
+const spriteRow = 3;
+const D_ACCELERATION = 2;
+const explosionLength = 40;
+const SHIP_HEIGHT = 70;
+const UFO_HEIGHT = 80;
+const HIGH_SCORES = 'HIGH_SCORES';
+const NO_OF_HIGH_SCORES = 10;
+const CONFIGS = {
     'easy': easy,
     'medium': medium,
     'hard': hard,
 };
-var backgroundImage;
-var shipImage;
-var shipWithThrustImage;
-var asteroidImage;
-var ufoImage;
-var ufoUprageImage;
-var spriteSheet;
-var explosionImages = [];
-var lifeCounterElement;
-var scoreElement;
-var highScoreElement;
-var playerElement;
-var highScores = {
-    easy: [], medium: [], hard: []
+const firebaseConfig = {
+    apiKey: "AIzaSyAwIHBpQnRrIXLLp4euhVB2K4Gpjas2OTE",
+    databaseURL: "https://asteroids-3cfd2.firebaseio.com",
+    authDomain: "asteroids-3cfd2.firebaseapp.com",
+    projectId: "asteroids-3cfd2",
+    storageBucket: "asteroids-3cfd2.appspot.com",
+    messagingSenderId: "187496489713",
+    appId: "1:187496489713:web:925331849946248527ff50",
+    measurementId: "G-XFQ8N96VKB"
 };
-var game;
-var startNewGameElement;
-var difficultyElement;
-var highscoreLabel;
-var laserSound;
-var ufoSound;
-var gameMusic;
-var explosionSound;
+let backgroundImage;
+let shipImage;
+let shipWithThrustImage;
+let asteroidImage;
+let ufoImage;
+let ufoUprageImage;
+let spriteSheet;
+let explosionImages = [];
+let lifeCounterElement;
+let scoreElement;
+let highScoreElement;
+let playerElement;
+let highScores = [];
+let game;
+let startNewGameElement;
+let difficultyElement;
+let highscoreLabel;
+let laserSound;
+let ufoSound;
+let gameMusic;
+let explosionSound;
+let db;
 function preload() {
     backgroundImage = loadImage('assets/space-background.jpg');
     shipImage = loadImage('assets/ship_without_thrust.png');
@@ -687,7 +682,6 @@ function preload() {
     explosionSound.setVolume(0.1);
 }
 function setup() {
-    highScores = getLocalHighScores();
     difficultyElement = document.getElementById('difficultyElement');
     startNewGameElement = document.getElementById('startNewGameButton');
     startNewGameElement.onclick = startNewGame;
@@ -696,21 +690,27 @@ function setup() {
     lifeCounterElement = createP().addClass('game-stats').id('lives');
     highscoreLabel = document.getElementById('highScoreLabel');
     highScoreElement = document.getElementById('highscores');
-    var drow = spriteSheet.height / spriteRows;
-    var dcol = spriteSheet.width / spriteCols;
-    for (var row = 0; row < spriteRows; row++) {
-        for (var col = 0; col < spriteCols; col++) {
+    const drow = spriteSheet.height / spriteRows;
+    const dcol = spriteSheet.width / spriteCols;
+    for (let row = 0; row < spriteRows; row++) {
+        for (let col = 0; col < spriteCols; col++) {
             explosionImages.push(spriteSheet.get(col * dcol, row * drow, dcol, drow));
         }
     }
-    for (var row = spriteRows - 1; row >= 0; row--) {
-        for (var col = spriteCols - 1; col >= 0; col--) {
+    for (let row = spriteRows - 1; row >= 0; row--) {
+        for (let col = spriteCols - 1; col >= 0; col--) {
             explosionImages.push(spriteSheet.get(col * dcol, row * drow, dcol, drow));
         }
     }
     createCanvas(windowWidth, windowHeight);
     console.log(width, height);
     rectMode(CENTER).noFill().frameRate(30);
+    firebase.default.initializeApp(firebaseConfig);
+    db = firebase.default.firestore();
+    console.log(firebase);
+    console.log(db);
+    getHighScores();
+    difficultyElement.onchange = getHighScores;
 }
 function newGame(playerName, config) {
     return new Game(playerName, config);
@@ -740,35 +740,33 @@ function setScoreDisplay(score) {
 function setLivesDisplay(lives) {
     lifeCounterElement.html("Lives: " + lives.toString());
 }
-function setHighScoreDisplay(difficulty, highScores) {
-    var html = '';
-    highScores[difficulty].forEach(function (highScore) {
+function setHighScoreDisplay(highScores) {
+    let html = '';
+    highScores.forEach(highScore => {
         html = html.concat("<div class='table-row'>");
-        html = html.concat("<div class='name'>" + highScore.name + "</div><div class='highScore'>" + highScore.score + "</div>");
+        html = html.concat(`<div class='name'>${highScore.name}</div><div class='highScore'>${highScore.score}</div>`);
         html = html.concat("</div>");
     });
     highScoreElement.innerHTML = html;
 }
-function getLocalHighScores() {
-    var _a;
-    var highScoreString = localStorage.getItem(HIGH_SCORES);
-    return (_a = JSON.parse(highScoreString)) !== null && _a !== void 0 ? _a : [];
-}
-function setLocalHighScores(highScores) {
-    localStorage.setItem(HIGH_SCORES, JSON.stringify(highScores));
-}
-function isHighScore(difficulty, score) {
-    var _a, _b;
-    var lowestScore = (_b = (_a = highScores[difficulty][NO_OF_HIGH_SCORES - 1]) === null || _a === void 0 ? void 0 : _a.score) !== null && _b !== void 0 ? _b : 0;
-    return (score > lowestScore);
-}
-function addHighScore(difficulty, name, score) {
-    if (isHighScore) {
-        highScores[difficulty].push({ name: name, score: score });
-        highScores[difficulty].sort(function (a, b) { return b.score - a.score; });
-        highScores[difficulty].splice(NO_OF_HIGH_SCORES);
-        setLocalHighScores(highScores);
+function getHighScores() {
+    if (db != undefined) {
+        return db.collection(getDifficulty()).orderBy('score', 'desc').limit(10).get().then((snapshot) => {
+            highScores = snapshot.docs.map(doc => doc.data());
+        });
     }
+    else {
+        highScores = [];
+    }
+}
+function addHighScore(name, score) {
+    if (db != undefined) {
+        db.collection(getDifficulty()).add({
+            name: name,
+            score: score
+        });
+    }
+    getHighScores();
 }
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
@@ -805,12 +803,12 @@ function draw() {
         playerElement.hidden = false;
         highScoreElement.hidden = false;
         highscoreLabel.hidden = false;
-        setHighScoreDisplay(getDifficulty(), highScores);
+        setHighScoreDisplay(highScores);
     }
     if (game) {
         if (game.lives == 0) {
             if (game.state == 'NEWLIFE' || game.state == 'PAUSED' || game.state == 'RUNNING') {
-                addHighScore(getDifficulty(), game.playerName, game.score);
+                addHighScore(game.playerName, game.score);
                 game.endGame();
             }
         }
