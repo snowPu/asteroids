@@ -39,7 +39,7 @@ function preload() {
   gameMusic = new Audio('assets/outer-space-54040.mp3')
   gameMusic.volume = 0.2
   gameMusic.loop = true
-  if (audioContext.state === 'suspended') {
+  if (typeof gameMusic !== 'undefined' && gameMusic.paused && gameMusic.currentTime > 0) {
     gameMusic.play();
   } else {
     gameMusic.autoplay = true
