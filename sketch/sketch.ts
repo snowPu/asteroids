@@ -84,7 +84,8 @@ function newGame(playerName: string, config: GameConfig) {
 function startNewGame() {
   console.log('Starting new game')
   console.log(playerElement.value)
-  if (typeof gameMusic !== 'undefined' && gameMusic.paused && gameMusic.currentTime > 0) {
+  console.log(gameMusic)
+  if (typeof gameMusic !== 'undefined' && gameMusic.paused && gameMusic.currentTime == 0) {
     gameMusic.play();
   }
 	if (playerElement.value.length >= 2) {
