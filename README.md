@@ -4,6 +4,13 @@
 This is a recreation of the classic game Asteroids using [p5.js](https://p5js.org/) and [typescript](https://www.typescriptlang.org/).
 
 
+## Demo
+
+Feel free to play the game [here](https://asteroids-snowpu.netlify.app/).
+
+![Alt text](screenshot.png)
+
+
 ## How to run
 
 ```
