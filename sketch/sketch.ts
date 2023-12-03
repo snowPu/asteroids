@@ -35,10 +35,15 @@ function preload() {
   ufoSound = new Audio('assets/spaceship-cruising-ufo-7176.mp3')
   ufoSound.volume = 0.7
   ufoSound.loop = true
+  const audioContext = new (window.AudioContext)();
   gameMusic = new Audio('assets/outer-space-54040.mp3')
   gameMusic.volume = 0.2
   gameMusic.loop = true
-  gameMusic.autoplay = true
+  if (audioContext.state === 'suspended') {
+    gameMusic.play();
+  } else {
+    gameMusic.autoplay = true
+  }
   explosionSound = loadSound('assets/bad-explosion-6855.mp3')
   explosionSound.setVolume(0.1)
 }
