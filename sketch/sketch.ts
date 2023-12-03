@@ -39,11 +39,7 @@ function preload() {
   gameMusic = new Audio('assets/outer-space-54040.mp3')
   gameMusic.volume = 0.2
   gameMusic.loop = true
-  if (typeof gameMusic !== 'undefined' && gameMusic.paused && gameMusic.currentTime > 0) {
-    gameMusic.play();
-  } else {
-    gameMusic.autoplay = true
-  }
+  gameMusic.autoplay = true
   explosionSound = loadSound('assets/bad-explosion-6855.mp3')
   explosionSound.setVolume(0.1)
 }
@@ -88,6 +84,9 @@ function newGame(playerName: string, config: GameConfig) {
 function startNewGame() {
   console.log('Starting new game')
   console.log(playerElement.value)
+  if (typeof gameMusic !== 'undefined' && gameMusic.paused && gameMusic.currentTime > 0) {
+    gameMusic.play();
+  }
 	if (playerElement.value.length >= 2) {
     startNewGameElement.hidden = true
     difficultyElement.hidden = true
