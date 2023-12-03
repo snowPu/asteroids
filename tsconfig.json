@@ -11,5 +11,8 @@
     "target": "es6",
     "moduleResolution": "node",
     "skipLibCheck": true
-  }
+  },
+  "exclude": [
+    "generate-config.ts"
+  ]
 }

@@ -67,13 +67,10 @@ function setup() {
   }
 
   createCanvas(windowWidth, windowHeight)
-  console.log(width, height)
   rectMode(CENTER).noFill().frameRate(30);
 
-  firebase.default.initializeApp(firebaseConfig); 
+  firebase.default.initializeApp(firebaseConfig);
   db = firebase.default.firestore();
-  console.log(firebase)
-  console.log(db)
   getHighScores()
   difficultyElement.onchange = getHighScores
 }
