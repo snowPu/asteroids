@@ -8,7 +8,7 @@ This is a recreation of the classic game Asteroids using [p5.js](https://p5js.or
 
 Feel free to play the game [here](https://asteroids-snowpu.netlify.app/).
 
-![Alt text](screenshot.png)
+![Alt text](asteroids.gif)
 
 
 ## How to run
